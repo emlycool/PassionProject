@@ -74,6 +74,25 @@ namespace PassionProject.Models
                 }).ToList()
             };
         }
+
+        public void UpdateFromDto(PropertyListingDto dto)
+        {
+            // Update properties from DTO
+            Name = dto.Name;
+            Price = dto.Price;
+            NoBedRooms = dto.NoBedRooms;
+            NoBathRooms = dto.NoBathRooms;
+            SquareFootage = dto.SquareFootage;
+            Description = dto.Description;
+            Status = dto.Status;
+            Type = dto.Type;
+            Features = dto.SerializeFeaturesToJson(dto.Features);
+            Slug = dto.Slugify(dto.Name);
+            
+
+            // TODO: I may add other related entities here or keep seperate e.g Media, Agent/User details
+        }
+
     }
 
     public class PropertyListingDto
