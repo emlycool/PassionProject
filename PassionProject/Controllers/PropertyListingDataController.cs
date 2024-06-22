@@ -31,9 +31,12 @@ namespace PassionProject.Controllers
         /// <returns>An HTTP response message containing the list of property listings.</returns>
         [HttpGet]
         [Route("api/property-listings")]
-        public IHttpActionResult PropertyListings()
+        public IHttpActionResult PropertyListings([FromUri] FilterPropertyDto filter)
         {
-            var propertyListings = _propertyListingService.GetAllWithDetails();
+            filter = filter == null ? new FilterPropertyDto() : filter;
+
+            // Get the filtered property listings
+            var propertyListings = _propertyListingService.GetAllWithDetails(filter);
 
             List<PropertyListingDto> propertyListingDtos = propertyListings
                 .Select(propertyListing => propertyListing.ToPropertyListingDto(Url))

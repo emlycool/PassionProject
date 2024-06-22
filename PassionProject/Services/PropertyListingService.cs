@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Mvc;
 using System.Web.UI.WebControls;
 using PassionProject.Models;
 
@@ -19,9 +21,34 @@ namespace PassionProject.Services
         {
         }
 
-        public IEnumerable<PropertyListing> GetAllWithDetails()
+        public IEnumerable<PropertyListing> GetAllWithDetails(FilterPropertyDto filterPropertyDto)
         {
-            return this.EagerLoadData(_context.PropertyListings);
+            var query = _context.PropertyListings.AsQueryable();
+
+            if (filterPropertyDto != null)
+            {
+                if (filterPropertyDto.MinPrice.HasValue)
+                {
+                    query = query.Where(pl => pl.Price >= filterPropertyDto.MinPrice.Value);
+                }
+
+                if (filterPropertyDto.MaxPrice.HasValue)
+                {
+                    query = query.Where(pl => pl.Price <= filterPropertyDto.MaxPrice.Value);
+                }
+
+                if (filterPropertyDto.MinBedrooms.HasValue)
+                {
+                    query = query.Where(pl => pl.NoBedRooms >= filterPropertyDto.MinBedrooms.Value);
+                }
+
+                if (filterPropertyDto.MaxBedrooms.HasValue)
+                {
+                    query = query.Where(pl => pl.NoBedRooms <= filterPropertyDto.MaxBedrooms.Value);
+                }
+            }
+
+            return this.EagerLoadData(query);
         }
 
         public IEnumerable<PropertyListing> GetByUserId(string userId)

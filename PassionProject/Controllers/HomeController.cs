@@ -61,11 +61,43 @@ namespace PassionProject.Controllers
             return;
         }
 
-        
-        public async Task<ActionResult> Index()
+
+        public async Task<ActionResult> Index(FilterPropertyDto filter)
         {
             GetApplicationCookie();
             string endpoint = "property-listings";
+
+            FilterPropertyDto filterProperty = new FilterPropertyDto();
+            // Construct query string based on filter
+            var queryParameters = new List<string>();
+            if (filter != null)
+            {
+                if (filter.MinPrice.HasValue)
+                {
+                    queryParameters.Add($"MinPrice={filter.MinPrice.Value}");
+                    filterProperty.MinPrice = filter.MinPrice.Value;
+                }
+                if (filter.MaxPrice.HasValue)
+                {
+                    queryParameters.Add($"MaxPrice={filter.MaxPrice.Value}");
+                    filterProperty.MaxPrice = filter.MaxPrice.Value;
+                }
+                if (filter.MinBedrooms.HasValue)
+                {
+                    queryParameters.Add($"MinBedrooms={filter.MinBedrooms.Value}");
+                    filterProperty.MinBedrooms = filter.MinBedrooms.Value;
+                }
+                if (filter.MaxBedrooms.HasValue)
+                {
+                    queryParameters.Add($"MaxBedrooms={filter.MaxBedrooms.Value}");
+                    filterProperty.MaxBedrooms = filter.MaxBedrooms.Value;
+                }
+            }
+
+            if (queryParameters.Any())
+            {
+                endpoint += "?" + string.Join("&", queryParameters);
+            }
 
             HttpResponseMessage response = await client.GetAsync(endpoint);
 
@@ -99,7 +131,11 @@ namespace PassionProject.Controllers
             // Extract the list of property listings
             List<PropertyListingDto> list = apiResponse.Data;
 
-            return View(list);
+            HomeViewModel model = new HomeViewModel();
+            model.PropertyListings = list;
+            model.FilterPropertyDto = filterProperty;
+
+            return View(model);
         }
 
         public async Task<ActionResult> Details(string slug)

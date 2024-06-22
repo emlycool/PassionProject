@@ -1,4 +1,5 @@
-﻿@model IEnumerable<PassionProject.Models.PropertyListingDto>
+﻿@model PassionProject.Models.HomeViewModel
+
 @{
     ViewBag.Title = "Properties Listing";
 }
@@ -8,57 +9,54 @@
         height: 400px;
         object-fit: cover;
     }
+
     @@media (min-width: 600px) {
-            .listing-img {
-                max-width: 60%;
-            }
+        .listing-img {
+            max-width: 60%;
         }
+    }
 </style>
 <div class="container-fluid">
     <div class="row mt-3">
         <div class="col-md-3">
             <div class="search-container">
                 <h5>Filter Properties</h5>
-                <form>
-                    <div class="form-group">
-                        <label for="searchBedrooms">Type</label>
-                        <select class="form-control" id="searchBedrooms">
-                            <option>Any</option>
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4+</option>
+                @using (Html.BeginForm("Index", "Home", FormMethod.Get))
+                {
+                    <div>
+                        <label for="MinPrice">Min Price</label>
+                        <input type="number" id="MinPrice" name="MinPrice" value="@Model.FilterPropertyDto.MinPrice" class="form-control" />
+                    </div>
+                    <div>
+                        <label for="MaxPrice">Max Price</label>
+                        <input type="number" id="MaxPrice" name="MaxPrice" value="@Model.FilterPropertyDto.MaxPrice" class="form-control" />
+                    </div>
+                    <div>
+                        <label for="MinBedrooms">Min Bedrooms</label>
+                        <select id="MinBedrooms" name="MinBedrooms" class="form-control">
+                            <option value="">Any</option>
+                            <option value="1" @(Model.FilterPropertyDto.MinBedrooms == 1 ? "selected" : "") >1</option>
+                            <option value="2" @(Model.FilterPropertyDto.MinBedrooms == 2 ? "selected" : "")>2</option>
+                            <!-- Add more options as needed -->
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="searchLocation">Location</label>
-                        <input type="text" class="form-control" id="searchLocation" placeholder="Enter location">
-                    </div>
-                    <div class="form-group">
-                        <label for="minPrice">Min Price</label>
-                        <input type="number" class="form-control" id="minPrice" placeholder="Enter min price">
-                    </div>
-                    <div class="form-group">
-                        <label for="maxPrice">Max Price</label>
-                        <input type="number" class="form-control" id="maxPrice" placeholder="Enter max price">
-                    </div>
-                    <div class="form-group">
-                        <label for="searchBedrooms">Number of Bedrooms</label>
-                        <select class="form-control" id="searchBedrooms">
-                            <option>Any</option>
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4+</option>
+                    <div>
+                        <label for="MaxBedrooms">Max Bedrooms</label>
+                        <select id="MaxBedrooms" name="MaxBedrooms" class="form-control">
+                            <option value="">Any</option>
+                            <option value="2" @(Model.FilterPropertyDto.MaxBedrooms == 2 ? "selected" : "")>2</option>
+                            <option value="3" @(Model.FilterPropertyDto.MaxBedrooms == 3 ? "selected" : "")>3</option>
+                            <!-- Add more options as needed -->
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary mt-2">Filter</button>
-                </form>
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                }
+
             </div>
         </div>
         <div class="col-md-9">
             <div class="row">
-                @foreach (var item in Model)
+                @foreach (var item in Model.PropertyListings)
                 {
                     <div class="col-md-12">
                         <div class="card property-card flex-md-row">
@@ -70,17 +68,19 @@
                             {
                                 <img src="https://via.placeholder.com/450" height="200" width="150" class="card-img-top listing-img" alt="Property Image">
                             }
-                            <div class="card-body">
-                                <a href="/Home/Details?slug=@item.Slug"><h5 class="card-title">@item.Name</h5></a>
-                                <p class="card-text">@item.Type</p>
-                                <p class="card-text">@item.Description</p>
-                                <p class="card-text"><strong>Bedrooms:</strong> @item.NoBedRooms</p>
-                            </div>
+                        <div class="card-body">
+                            <a href="/Home/Details?slug=@item.Slug"><h5 class="card-title">@item.Name</h5></a>
+                            <p class="card-text badge badge-primary">@item.Type</p>
+                            <p class="card-text">@((item.Description.Length > 150) ? item.Description.Substring(0, 150) + "..." : item.Description)</p>
+
+                            <p class="card-text"><strong>Bedrooms:</strong> @item.NoBedRooms</p>
+                            <p class="card-text"><strong>@item.Price.ToString("C2")</strong></p>
+                        </div>
                         </div>
                     </div>
                 }
 
-                @if (Model.Count() == 0)
+                @if (Model.PropertyListings.Count() == 0)
                 {
                     <h5> No items found</h5>
                 }
