@@ -10,19 +10,31 @@ using System.Web.Http;
 
 namespace PassionProject.Helpers
 {
+    public class ApiResponse<T>
+    {
+        public string Message { get; set; }
+        public bool Success { get; set; }
+        public T Data { get; set; }
+        public object Errors { get; set; }
+    }
+
     public static class ResponseHelper
     {
         public static IHttpActionResult JsonResponse(string message, HttpStatusCode statusCode, bool success, object data = null, object errors = null)
         {
-            var responseData = new
+            ApiResponse<object> responseData = new ApiResponse<object>
             {
-                message,
-                success,
-                data,
-                errors
+                Message = message,
+                Success = success,
+                Data = data,
+                Errors = errors
             };
-            var response = new HttpResponseMessage(statusCode);
-            response.Content = new ObjectContent<object>(responseData, new JsonMediaTypeFormatter());
+
+            var response = new HttpResponseMessage(statusCode)
+            {
+                Content = new ObjectContent<ApiResponse<object>>(responseData, new JsonMediaTypeFormatter())
+            };
+
             return new ResponseMessageResult(response);
         }
     }

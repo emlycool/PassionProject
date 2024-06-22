@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -51,6 +52,10 @@ namespace PassionProject.Controllers
         public IHttpActionResult PropertyListingsForAuthUser()
         {
             string userId = User.Identity.GetUserId();
+            if (userId == null)
+            {
+                userId = "23476df5-a875-47d2-96a2-dea0b0abd34e";
+            }
             var propertyListings = _propertyListingService.GetByUserId(userId);
 
             List<PropertyListingDto> propertyListingDtos = propertyListings
@@ -75,8 +80,20 @@ namespace PassionProject.Controllers
                 return ResponseHelper.JsonResponse("Unsupported media type", HttpStatusCode.UnsupportedMediaType, false);
             }
 
+
+
             var provider = new MultipartMemoryStreamProvider();
             await Request.Content.ReadAsMultipartAsync(provider);
+
+            // Log request content
+            var requestContent = await Request.Content.ReadAsStringAsync();
+            Debug.WriteLine($"Received request content: {requestContent}");
+
+            // Log uploaded files
+            foreach (var content in provider.Contents)
+            {
+                Debug.WriteLine($"Uploaded file: {content.Headers.ContentDisposition.FileName}");
+            }
 
             PropertyListingDto propertyListingDto = new PropertyListingDto();
             string uploadDirectory = HttpContext.Current.Server.MapPath("~/Uploads");
@@ -163,7 +180,7 @@ namespace PassionProject.Controllers
         [HttpPut]
         [Authorize]
         [Route("api/property-listings/{id}")]
-        public async Task<IHttpActionResult> UpdatePropertyListing(int id, PropertyListingDto updatedDto)
+        public async Task<IHttpActionResult> UpdatePropertyListing(int id)
         {
             // Check if the user is authorized to update this property listing
             var userId = User.Identity.GetUserId();
@@ -179,7 +196,27 @@ namespace PassionProject.Controllers
                 return ResponseHelper.JsonResponse("Unauthorized", HttpStatusCode.Unauthorized, false);
             }
 
-            // Validate the updated DTO
+            // Read the multipart form data from the request
+            var provider = new MultipartMemoryStreamProvider();
+            await Request.Content.ReadAsMultipartAsync(provider);
+
+            // Extract the media files from the form data and handle the file uploads
+            string uploadDirectory = HttpContext.Current.Server.MapPath("~/Uploads");
+            List<Media> mediaFiles = await _propertyListingService.HandleFileUpload(provider.Contents, uploadDirectory);
+
+            PropertyListingDto updatedDto = new PropertyListingDto();
+
+            updatedDto.Name = HttpContext.Current.Request.Form["Name"];
+            updatedDto.Price = Convert.ToDecimal(HttpContext.Current.Request.Form["Price"]);
+            updatedDto.NoBedRooms = Convert.ToInt32(HttpContext.Current.Request.Form["NoBedRooms"]);
+            updatedDto.NoBathRooms = Convert.ToInt32(HttpContext.Current.Request.Form["NoBathRooms"]);
+            updatedDto.SquareFootage = Convert.ToDecimal(HttpContext.Current.Request.Form["SquareFootage"]);
+            updatedDto.Description = HttpContext.Current.Request.Form["Description"];
+            updatedDto.Status = HttpContext.Current.Request.Form["Status"];
+            updatedDto.Type = HttpContext.Current.Request.Form["Type"];
+            updatedDto.Features = HttpContext.Current.Request.Form.GetValues("Features[]");
+
+            // Validate the updated property listing
             if (!_propertyListingService.ValidatePropertyListing(updatedDto, out var validationResults))
             {
                 var errors = validationResults.ToDictionary(
@@ -193,6 +230,7 @@ namespace PassionProject.Controllers
             // Update the property listing
             propertyListing.UpdateFromDto(updatedDto);
             await _propertyListingService.UpdateAsync(propertyListing);
+            await _propertyListingService.SaveMediaFilesAsync(mediaFiles, propertyListing);
 
             // Load related entities
             _propertyListingService.LoadMediaItems(propertyListing);
@@ -207,7 +245,7 @@ namespace PassionProject.Controllers
         /// </summary>
         /// <param name="id">The ID of the property listing to delete.</param>
         /// <returns>An HTTP response message containing the result of the operation.</returns>
-        [HttpDelete]
+        [HttpDelete, HttpPost]
         [Authorize]
         [Route("api/property-listings/{id}")]
         public async Task<IHttpActionResult> DeletePropertyListing(int id)

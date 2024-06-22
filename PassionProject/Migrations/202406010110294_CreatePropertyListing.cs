@@ -21,7 +21,7 @@
                         Description = c.String(),
                         Status = c.String(),
                         Type = c.String(),
-                        features = c.String(),
+                        Features = c.String(),
                         UserId = c.Int(nullable: false),
                         PublishedAt = c.DateTime(),
                         CreatedAt = c.DateTime(),

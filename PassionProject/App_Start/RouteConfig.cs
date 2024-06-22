@@ -11,6 +11,9 @@ namespace PassionProject
     {
         public static void RegisterRoutes(RouteCollection routes)
         {
+            // Enable attribute routing
+            routes.MapMvcAttributeRoutes();
+
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
             routes.MapRoute(
                 name: "Default",

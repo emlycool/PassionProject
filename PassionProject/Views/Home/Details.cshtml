@@ -1,0 +1,122 @@
+﻿
+@model PassionProject.Models.PropertyListingDto
+
+@{
+    ViewBag.Title = "Details Listing";
+
+}
+
+<style>
+    .listing-img {
+        max-width: 800px;
+        aspect-ratio: 7/5;
+        object-fit: cover;
+    }
+</style>
+
+<div class="container">
+    <div class="d-flex justify-content-xxl-between">
+        <div> <h4>@Model.Name</h4></div>
+        <div>
+            @Html.ActionLink("Back To List", "Index")
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="property-images">
+                @if (Model.MediaItems != null && Model.MediaItems.Count > 0)
+                {
+                    <img src="@Model.MediaItems.First().Url" class="card-img-top img-fluid listing-img" alt="Property Image">
+                }
+                else
+                {
+                    <img src="https://via.placeholder.com/450" height="200" width="250" class="card-img-top listing-img" alt="Property Image">
+                }
+
+                <!-- Thumbnails -->
+                <div class="thumbnail-images">
+                    @foreach (var item in Model.MediaItems)
+                    {
+                        <img src="@item.Url" alt="Thumbnail Image">
+                    }
+                </div>
+
+                <div class="d-flex justify-content-xl-start">
+                    <div class="mr-2">
+                        <i class="fa-solid fa-bed">&nbsp; @Model.NoBedRooms</i>
+                        <div class="small-font">Bedrooms </div>
+                    </div>
+                    <div class="pr-2">
+                        <i class="fa-solid fa-bath">&nbsp; @Model.NoBathRooms</i>
+                        <div class="small-font">Bathrooms</div>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-money-bill">&nbsp; @Model.SquareFootage</i>
+                        <div class="small-font">Square Feet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card property-agent">
+                <div class="card-body">
+                    <h5 class="card-title">Agent Information</h5>
+                    <p class="card-text"><strong>Name:</strong> @Model.Agent.BusinessName</p>
+                    <p class="card-text"><strong>Phone:</strong> @Model.Agent.Phone</p>
+                    <p class="card-text"><strong>Email:</strong> @Model.Agent.Email</p>
+                    <a href="#" class="btn btn-primary">Contact Agent</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <label class="fw-bold">Description </label>
+        <label>@Model.Description</label>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+<style>
+
+    .property-images {
+        margin-bottom: 20px;
+    }
+
+        .property-images .main-image {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .property-images .thumbnail-images {
+            margin-top: 10px;
+        }
+
+            .property-images .thumbnail-images img {
+                width: 20%;
+                max-width: 100%;
+                cursor: pointer;
+                margin-right: 5px;
+                border: 1px solid #ddd;
+            }
+
+    .property-agent {
+        padding: 20px;
+    }
+
+    .d-flex > div {
+        margin-left: 10px; /* Adjust the value as needed */
+    }
+
+    .small-font {
+        font-size: 11px;
+    }
+</style>
