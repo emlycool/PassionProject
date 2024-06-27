@@ -29,6 +29,12 @@ namespace PassionProject.Controllers
         /// Retrieves all property listings.
         /// </summary>
         /// <returns>An HTTP response message containing the list of property listings.</returns>
+        /// <params>
+        ///     FilterPropertyDto (optional): Object containing filter criteria.
+        /// </params>
+        /// <example>
+        ///     curl -X POST -k -H "Content-Type: application/json" -d http://localhost:port/api/property-listings
+        /// </example>
         [HttpGet]
         [Route("api/property-listings")]
         public IHttpActionResult PropertyListings([FromUri] FilterPropertyDto filter)
@@ -49,16 +55,18 @@ namespace PassionProject.Controllers
         /// Retrieves property listings for the authenticated user.
         /// </summary>
         /// <returns>An HTTP response message containing the list of property listings.</returns>
+        /// <example>
+        ///     curl --location 'https://localhost:44343/api/user/property-listings' \
+        ///        --header 'Accept: application/json' \
+        ///        --header 'Content-Type: application/json' \
+        ///        --header 'Cookie: .AspNet.ApplicationCookie=XXXX'
+        /// </example>
         [HttpGet]
         [Authorize]
         [Route("api/user/property-listings")]
         public IHttpActionResult PropertyListingsForAuthUser()
         {
             string userId = User.Identity.GetUserId();
-            if (userId == null)
-            {
-                userId = "23476df5-a875-47d2-96a2-dea0b0abd34e";
-            }
             var propertyListings = _propertyListingService.GetByUserId(userId);
 
             List<PropertyListingDto> propertyListingDtos = propertyListings
@@ -73,6 +81,22 @@ namespace PassionProject.Controllers
         /// Stores a new property listing.
         /// </summary>
         /// <returns>An HTTP response message containing the result of the operation.</returns>
+        /// <example>
+        ///     curl --location --request PUT 'https://localhost:44343/api/property-listings/7' \
+        ///     --header 'Accept: application/json' \
+        ///     --header 'Cookie: .AspNet.ApplicationCookie=XJX2zTQwc4Ws9fcoa1oDP5RAGjpg5CwWoJ_3zP-W_WIZX_hicl4hY8GNfeMt7bVcINlJiKP9VRESOyGEcCBUZ16hp7WOQ8zRTF5XpEHzyuvuYx9gLyfrwyxCANlar5egmeRKheSlduiuC7FWuoSS0lXOk4KSGDRqaIw-2gKPcULIXPf6Z3elbiN5f0ic7D-lWF29wuIDMFe0LJlCxRFTyF9vRqPzqz85qc-V3jOGNQUB07_qTlbXYq8gMFy8ke_c9aP3xcezJeaRqnRTN74bvGL1cGD78z2NcE6Ih6fF29BR7t1DCK7ajhpcDcLz5iuE_a0VG7XDZQ9oMVSQfJiWrZuqWeefnDywhrpyCcPhzOH1FjD7OavyMLBIrWDvIScR866ByHREoJTN4ZgSrr5suWXZ0wagmr0wzfLvagMB6QcEMNS6q447A-SXBHTnkOfB0JWEn5dEhZRfKDpEK-tvVgaUcsomgdpHeLcJ45cpD07gNJQb1F7DjeHpKzcC4wEv; __RequestVerificationToken=P_C40Bhkzz1plC_cIHQc9F9rH-1vsO3f6NGS7eWohYCa2ZWy2PsZOFAyJEE1bUTh6XfszVsQyPSoG-zwuzydc9RmvwkbC7BgnD47Kw8qAP01' \
+        ///     --form 'Name="Sample Property-2"' \
+        ///     --form 'Price="100000"' \
+        ///     --form 'NoBedRooms="3"' \
+        ///     --form 'NoBathRooms="2"' \
+        ///     --form 'SquareFootage="1500"' \
+        ///     --form 'Description="A beautiful property"' \
+        ///     --form 'Status="pending"' \
+        ///     --form 'Type="rent"' \
+        ///     --form 'Features[]="Wifi"' \
+        ///     --form 'Features[]="Hydro"' \
+        ///     --form 'media=@"/C:/Users/DELL/Desktop/important items/20211026_131514.jpg"'
+        /// </example>
         [HttpPost]
         [Authorize]
         [Route("api/property-listings")]
@@ -156,6 +180,9 @@ namespace PassionProject.Controllers
         /// </summary>
         /// <param name="slug">The slug of the property listing.</param>
         /// <returns>An HTTP response message containing the property listing.</returns>
+        /// <example>
+        ///     curl -X GET "http://localhost:port/api/property-listings/{slug}"
+        /// </example>
         [HttpGet]
         [Route("api/property-listings/{slug}")]
         public IHttpActionResult GetPropertyListingBySlug(string slug)
@@ -180,6 +207,9 @@ namespace PassionProject.Controllers
         /// <param name="id">The ID of the property listing to update.</param>
         /// <param name="updatedDto">The updated details of the property listing.</param>
         /// <returns>An HTTP response message containing the result of the operation.</returns>
+        /// <example>
+        ///     refer to store for payload
+        /// </example>
         [HttpPut]
         [Authorize]
         [Route("api/property-listings/{id}")]
@@ -248,6 +278,9 @@ namespace PassionProject.Controllers
         /// </summary>
         /// <param name="id">The ID of the property listing to delete.</param>
         /// <returns>An HTTP response message containing the result of the operation.</returns>
+        /// <example>
+        ///     curl --location --request DELETE 'https://localhost:44343/api/property-listings/5' --header 'Accept: application/json' --header 'Content-Type: application/json' --header 'Cookie: __RequestVerificationToken=P_C40Bhkzz1plC_cIHQc9F9rH-1vsO3f6NGS7eWohYCa2ZWy2PsZOFAyJEE1bUTh6XfszVsQyPSoG-zwuzydc9RmvwkbC7BgnD47Kw8qAP01'
+        /// <example>
         [HttpDelete, HttpPost]
         [Authorize]
         [Route("api/property-listings/{id}")]
